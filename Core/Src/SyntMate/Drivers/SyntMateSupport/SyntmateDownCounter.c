@@ -49,18 +49,7 @@ uint32_t 	h,t,u;  // hundreds,tens,units
 			if ( h == 0 )
 				DigitsCounter[xcount] = DigitOFF[j*DIGIT_WIDTH+i];
 			else
-			{
-				switch(color)
-				{
-				case	ILI9341_GREEN	:	DigitsCounter[xcount] = Green[h][j*DIGIT_WIDTH+i];break;
-#ifdef	DIGIT_RED
-				case	ILI9341_RED		:	DigitsCounter[xcount] = Red[h][j*DIGIT_WIDTH+i];break;
-#endif
-#ifdef	DIGIT_YELLOW
-				case	ILI9341_YELLOW	:	DigitsCounter[xcount] = Yellow[h][j*DIGIT_WIDTH+i];break;
-#endif
-				}
-			}
+				DigitsCounter[xcount] = Red[h][j*DIGIT_WIDTH+i];
 		}
 		for(i=0;i<DOWNCOUNTER_DIGITSPACE;i++,xcount++)
 			DigitsCounter[xcount] = 0;
@@ -69,34 +58,12 @@ uint32_t 	h,t,u;  // hundreds,tens,units
 			if (( h == 0 ) && ( t == 0 ))
 				DigitsCounter[xcount] = DigitOFF[j*DIGIT_WIDTH+i];
 			else
-			{
-				switch(color)
-				{
-				case	ILI9341_GREEN	:	DigitsCounter[xcount] = Green[t][j*DIGIT_WIDTH+i];break;
-#ifdef	DIGIT_RED
-				case	ILI9341_RED		:	DigitsCounter[xcount] = Red[t][j*DIGIT_WIDTH+i];break;
-#endif
-#ifdef	DIGIT_YELLOW
-				case	ILI9341_YELLOW	:	DigitsCounter[xcount] = Yellow[t][j*DIGIT_WIDTH+i];break;
-#endif
-				}
-			}
+				DigitsCounter[xcount] = Red[t][j*DIGIT_WIDTH+i];
 		}
 		for(i=0;i<DOWNCOUNTER_DIGITSPACE;i++,xcount++)
 			DigitsCounter[xcount] = 0;
 		for(i=0;i<DIGIT_WIDTH;i++,xcount++)
-		{
-			switch(color)
-			{
-			case	ILI9341_GREEN	:	DigitsCounter[xcount] = Green[u][j*DIGIT_WIDTH+i];break;
-#ifdef	DIGIT_RED
-			case	ILI9341_RED		:	DigitsCounter[xcount] = Red[u][j*DIGIT_WIDTH+i];break;
-#endif
-#ifdef	DIGIT_YELLOW
-			case	ILI9341_YELLOW	:	DigitsCounter[xcount] = Yellow[u][j*DIGIT_WIDTH+i];break;
-#endif
-			}
-		}
+			DigitsCounter[xcount] = Red[u][j*DIGIT_WIDTH+i];
 	}
 }
 
@@ -111,15 +78,26 @@ void InitCounter(void)
 {
 	SystemVar.suppress_trailing_zero = 1;
 	SystemVar.DownCounter = SystemVar.Session_DownCounter;
-	compileDigitsCounter(ILI9341_GREEN);
-	SetCounter(SystemVar.DownCounter,ILI9341_GREEN);
+	compileDigitsCounter(ILI9341_RED);
+	SetCounter(SystemVar.DownCounter,ILI9341_RED);
 	HAL_Delay(10);
 }
 
 void DecrementCounter(void)
 {
-uint32_t	color = ILI9341_GREEN;
 	SystemVar.DownCounter--;
+	if (SystemVar.DownCounter < 31 )
+	{
+		SystemVar.worm_r = WORM_R_FINISHING;
+		SystemVar.worm_g = WORM_G_FINISHING;
+		SystemVar.worm_b = WORM_B_FINISHING;
+	}
+	else
+	{
+		SystemVar.worm_r = WORM_R_RUNNING;
+		SystemVar.worm_g = WORM_G_RUNNING;
+		SystemVar.worm_b = WORM_B_RUNNING;
+	}
 
 	if (SystemVar.DownCounter == 0 )
 	{
@@ -127,19 +105,11 @@ uint32_t	color = ILI9341_GREEN;
 		SystemVar.DownCounter = SystemVar.Session_DownCounter;
 		SystemVar.run_state = RUN_STATE_IDLE;
 		DrawIdleButtons();
-		color = ILI9341_GREEN;
+		WS2812_LedsOff();
+		SystemVar.worm_r = WORM_R_RUNNING;
+		SystemVar.worm_g = WORM_G_RUNNING;
+		SystemVar.worm_b = WORM_B_RUNNING;
 	}
-#ifdef	DIGIT_RED
-#ifdef	DIGIT_YELLOW
-	if ( SystemVar.DownCounter < 30 )
-	{
-		if ( SystemVar.DownCounter < 10 )
-			color = ILI9341_RED;
-		else
-			color = ILI9341_YELLOW;
-	}
-#endif
-#endif
-	SetCounter(SystemVar.DownCounter,color);
+	SetCounter(SystemVar.DownCounter,ILI9341_RED);
 }
 

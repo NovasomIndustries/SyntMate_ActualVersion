@@ -39,7 +39,8 @@ void SintMate_PinSetDefaults(void)
 }
 
 extern	uint16_t Logo[];
-void SyntMateLedDemo(void)
+
+void SyntMateLedCheck(void)
 {
 uint32_t	i;
 uint8_t		r , g , b;
@@ -89,13 +90,13 @@ uint8_t		r , g , b;
 	WS2812_LedsOff();
 	HAL_Delay(1);
 	while(ringled_frame_complete == 0);
-	WS2812_WormReset(5);
+	WS2812_WormReset(WORMLEN);
 }
 
 void Init_SintMate(void)
 {
 	SintMate_PinSetDefaults();
-	SyntMateLedDemo();
+	SyntMateLedCheck();
 	ILI9341_Init();
 	ILI9341_FillScreen(ILI9341_BLACK);
 	HAL_TIM_PWM_Start(&BACKLIGHT_TIMER, BACKLIGHT_TIMER_CHANNEL);
@@ -119,34 +120,16 @@ void Init_SintMate(void)
 	SystemVar.run_state = RUN_STATE_IDLE;
 	StepperInit();
 	SyntMate_VL53L0X_Init();
-
+	SystemVar.worm_r = WORM_R_RUNNING;
+	SystemVar.worm_g = WORM_G_RUNNING;
+	SystemVar.worm_b = WORM_B_RUNNING;
 	WS2812_LedsOff();
 	HAL_TIM_Base_Start_IT(&TICK100MS_TIMER);
-
+	WS2812_WormReset(WORMLEN);
 }
-static	uint8_t	worm_initialized = 0;
 
 void SintMateLoop(void)
 {
-uint8_t		r , g , b;
-uint32_t	was_running;
-	if (SystemVar.run_state == RUN_STATE_IDLE)
-	{
-		if ( worm_initialized == 0 )
-		{
-			WS2812_WormReset(5);
-			g = 0x3f;
-			r=0;
-			b=0;
-			ringled_frame_complete=0;
-			WS2812_Worm(r,g,b);
-			while(ringled_frame_complete == 0);
-			ringled_frame_complete=0;
-			worm_initialized = 1;
-			WS2812_WormReset(5);
-		}
-	}
-
 	if (( SystemVar.counter_flag == 1 ) && (SystemVar.run_state == RUN_STATE_RUNNING))
 	{
 		SystemVar.counter_flag = 0;
@@ -154,23 +137,19 @@ uint32_t	was_running;
 		if (ringled_frame_complete == 1)
 		{
 			ringled_frame_complete=0;
-			WS2812_Worm(r,g,b);
+			WS2812_Worm(SystemVar.worm_r,SystemVar.worm_g,SystemVar.worm_b);
 		}
 	}
 	if ( SystemVar.touch_flag == 1 )
 	{
 		SystemVar.touch_flag = 0;
-		was_running = SystemVar.run_state;
 		if ( ILI9341_GetTouch(&SystemVar.touch_x,&SystemVar.touch_y) != 0 )
 		{
-			SintMateTouchProcess();
-			/*
-			if ( SintMateTouchProcess() == 0 )
+			if ( SintMateTouchProcess() == 1 )
 			{
-				if ( was_running == RUN_STATE_RUNNING )
-					WS2812_WormReset(5);
+				ringled_frame_complete=0;
+				WS2812_Worm(SystemVar.worm_r,SystemVar.worm_g,SystemVar.worm_b);
 			}
-			*/
 		}
 	}
 	if ( SystemVar.usb_packet_ready == 1 )

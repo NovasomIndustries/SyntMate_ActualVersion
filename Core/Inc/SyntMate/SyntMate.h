@@ -106,7 +106,26 @@ typedef struct _SystemVarDef
 	uint8_t 				usb_packet[USB_BUFLEN];
 	uint16_t 				usb_image_number;
 	char 					usb_image_name[32];
+	uint8_t 				worm_r;
+	uint8_t 				worm_g;
+	uint8_t 				worm_b;
+
 }SystemVarDef;
+
+
+#define	WORM_R_RUNNING	0x00
+#define	WORM_G_RUNNING	0x1f
+#define	WORM_B_RUNNING	0x00
+
+#define	WORM_R_FINISHING	0x00
+#define	WORM_G_FINISHING	0x00
+#define	WORM_B_FINISHING	0x1f
+
+#define	WORM_R_ERROR		0x1f
+#define	WORM_G_ERROR		0x00
+#define	WORM_B_ERROR		0x00
+
+#define	WORMLEN				6
 
 extern	SystemParametersTypeDef	SystemParameters;
 extern	SystemVarDef			SystemVar;
