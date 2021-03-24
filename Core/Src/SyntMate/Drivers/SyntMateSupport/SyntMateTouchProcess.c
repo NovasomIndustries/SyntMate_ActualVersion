@@ -150,7 +150,7 @@ uint32_t	callback_id = TOUCH_CALLBACK_NOTOUCH;
 				SystemVar.DownCounter ++;
 				SystemVar.DownCounter *=10;
 			}
-			SetCounter(SystemVar.DownCounter, ILI9341_GREEN);
+			SetCounter(SystemVar.DownCounter);
 			SystemVar.Session_DownCounter = SystemVar.DownCounter;
 		}
 		if (decrease_button_check() == 1)
@@ -161,7 +161,7 @@ uint32_t	callback_id = TOUCH_CALLBACK_NOTOUCH;
 				SystemVar.DownCounter --;
 				SystemVar.DownCounter *=10;
 			}
-			SetCounter(SystemVar.DownCounter, ILI9341_GREEN);
+			SetCounter(SystemVar.DownCounter);
 			SystemVar.Session_DownCounter = SystemVar.DownCounter;
 
 		}

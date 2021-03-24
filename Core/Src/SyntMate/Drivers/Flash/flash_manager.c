@@ -58,11 +58,8 @@ char		message[32];
 	{
 		ILI9341_WriteString(100, ypos, "Invalid", Font_7x10, ILI9341_RED, ILI9341_BLACK);
 		ypos += BOOT_Y_DELTA;
-		sprintf(message,"Flash value : %s",SystemParameters.Header);
-		ILI9341_WriteString(0, ypos, message, Font_7x10, ILI9341_RED, ILI9341_BLACK);
-		ypos += BOOT_Y_DELTA;
 		ILI9341_WriteString(0, ypos, "Setting defaults ...", Font_7x10, ILI9341_RED, ILI9341_BLACK);
-		HAL_Delay(100);
+		HAL_Delay(10);
 		SintMate_SystemSetDefaults();
 		StoreSettingsInFlash();
 		LoadSettingsFromFlash();

@@ -42,7 +42,7 @@ int serial_port;
     // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
     // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
-    tty.c_cc[VTIME] = 100;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+    tty.c_cc[VTIME] = 30;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     tty.c_cc[VMIN] = 0;
 
     // Set in/out baud rate to be B115200
@@ -66,48 +66,33 @@ int serial_tx_rx(int serial_port,char *tx_packet,int tx_len,char *rx_packet,char
 {
 int  num_bytes,pnum,rxed,packet_id ;
 
-    //printf("%s : Sending %s, size is %d\n", __FUNCTION__,item_name,tx_len);
     num_bytes = write(serial_port, tx_packet, strlen(tx_packet));
+    fsync(serial_port);
+    sleep(1);
+
     bzero(rx_packet,BUFSIZE);
     num_bytes = read(serial_port, rx_packet, BUFSIZE);
-    //printf("%s : Received : rx_packet %s , size is %d\n",__FUNCTION__,rx_packet,num_bytes);
 
     if (num_bytes < 0)
     {
         printf("Error reading: %s", strerror(errno));
         return -1;
     }
-    pnum = sscanf(rx_packet,"Finished %d %d OK",&packet_id,&rxed);
+    pnum = sscanf(rx_packet,"RECEIVED %d %d OK",&packet_id,&rxed);
     if ( pnum == 2)
-    {
-        //printf("%s : %s downloaded, size %d\n",__FUNCTION__,item_name, rxed);
         return rxed;
-    }
     printf("%s : Error : rx_packet %s\n",__FUNCTION__,rx_packet);
     return -1;
-}
-
-#define RESTART_PACKET      0xDEADBEEF
-#define RESTART_PACKET_LEN  16
-int serial_send_restart(int serial_port)
-{
-unsigned int restart_packet[RESTART_PACKET_LEN],i;
-
-    for(i=0;i<RESTART_PACKET_LEN;i++)
-        restart_packet[i] = RESTART_PACKET;
-    write(serial_port, (char *)&restart_packet, RESTART_PACKET_LEN*4);
-    return 0;
 }
 
 int serial_tx_rx_command(int serial_port,char *tx_packet,char *rx_packet)
 {
 int  num_bytes ;
 
-    //printf("%s : %s %d\n",__FUNCTION__,tx_packet,strlen(tx_packet));
     num_bytes = write(serial_port, tx_packet, strlen(tx_packet));
+    fsync(serial_port);
     bzero(rx_packet,BUFSIZE);
     num_bytes = read(serial_port, rx_packet, BUFSIZE);
-    //printf("%s : received %s\n",__FUNCTION__,rx_packet);
 
     if (num_bytes < 0)
     {

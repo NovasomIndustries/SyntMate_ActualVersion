@@ -10,9 +10,12 @@
 
 __attribute__ ((aligned (16)))	uint16_t BackGround[ILI9341_WIDTH*ILI9341_HEIGHT];
 
+/*
 DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t Green[10][DIGIT_SIZE];
 DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t Red[10][DIGIT_SIZE];
 DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t Yellow[10][DIGIT_SIZE];
+*/
+DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t Digit[10][DIGIT_SIZE];
 DIGIT_BUFFERS 	__attribute__ ((aligned (16)))	uint16_t DigitOFF[DIGIT_SIZE];
 DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t play[BUTTONS_SIZE];
 DIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t stop[BUTTONS_SIZE];
@@ -31,14 +34,17 @@ XDIGIT_BUFFERS	__attribute__ ((aligned (16)))	uint16_t Back[BACK_SIZE];
 
 void GetDigitsFromFlash(void)
 {
-uint32_t i;
+	flash_ReadBytes((uint8_t*)&Digit[0][0], 			flash_SectorToAddress(DIGIT0_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[1][0], 			flash_SectorToAddress(DIGIT1_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[2][0], 			flash_SectorToAddress(DIGIT2_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[3][0], 			flash_SectorToAddress(DIGIT3_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[4][0], 			flash_SectorToAddress(DIGIT4_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[5][0], 			flash_SectorToAddress(DIGIT5_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[6][0], 			flash_SectorToAddress(DIGIT6_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[7][0], 			flash_SectorToAddress(DIGIT7_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[8][0], 			flash_SectorToAddress(DIGIT8_BASE), DIGIT_SIZE*2);
+	flash_ReadBytes((uint8_t*)&Digit[9][0], 			flash_SectorToAddress(DIGIT9_BASE), DIGIT_SIZE*2);
 
-	for(i=0;i<10;i++)
-	{
-		flash_ReadBytes((uint8_t*)&Red[i][0], flash_SectorToAddress(i*2+DIGITRED_BASE), DIGIT_SIZE*2);
-		flash_ReadBytes((uint8_t*)&Green[i][0], flash_SectorToAddress(i*2+DIGITGREEN_BASE), DIGIT_SIZE*2);
-		flash_ReadBytes((uint8_t*)&Yellow[i][0], flash_SectorToAddress(i*2+DIGITYELLOW_BASE), DIGIT_SIZE*2);
-	}
 	flash_ReadBytes((uint8_t*)&DigitOFF[0], 			flash_SectorToAddress(DIGITOFF_BASE), DIGIT_SIZE*2);
 	flash_ReadBytes((uint8_t*)&SyntmateLogo[0], 		flash_SectorToAddress(LOGO_BASE), LOGO_SIZE*2);
 	flash_ReadBytes((uint8_t*)&Increase[0], 			flash_SectorToAddress(INCREASE_BASE), ICONS_SIZE*2);

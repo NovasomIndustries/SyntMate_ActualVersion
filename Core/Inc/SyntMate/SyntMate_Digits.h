@@ -75,13 +75,16 @@ extern uint16_t RedOFF[];
 #define  BACK_HEIGHT  64
 #define  BACK_SIZE  8320
 
+/*
 extern   uint16_t Red[10][DIGIT_SIZE];
 extern   uint16_t Green[10][DIGIT_SIZE];
 extern   uint16_t Yellow[10][DIGIT_SIZE];
 extern   uint16_t Blue[10][DIGIT_SIZE];
 extern   uint16_t White[10][DIGIT_SIZE];
+*/
 extern   uint16_t DigitOFF[DIGIT_SIZE];
 extern   uint16_t SyntmateLogo[LOGO_SIZE];
+extern	 uint16_t Digit[10][DIGIT_SIZE];
 
 extern   uint16_t Increase[];
 extern   uint16_t Decrease[];

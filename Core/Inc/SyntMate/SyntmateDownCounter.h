@@ -26,7 +26,7 @@
 
 extern	void Tim100MSec_callback(void);
 extern	void InitCounter(void);
-extern	void SetCounter(uint32_t value, uint32_t color);
+extern	void SetCounter(uint32_t value);
 extern	void DecrementCounter(void);
 
 

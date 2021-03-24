@@ -7,7 +7,7 @@
 
 #include "main.h"
 
-DIGIT_BUFFERS		__attribute__ ((aligned (4)))	uint16_t	DigitsCounter[DIGIT_WIDTH*DIGIT_HEIGHT*3+DOWNCOUNTER_DIGITSPACE*2];
+__attribute__ ((aligned (4)))	uint16_t	DigitsCounter[DIGIT_WIDTH*DIGIT_HEIGHT*3+DOWNCOUNTER_DIGITSPACE*2];
 
 void Tim100MSec_callback(void)
 {
@@ -33,7 +33,7 @@ void Tim100MSec_callback(void)
 		SystemVar.touch_pen_down = 0;
 }
 
-static void compileDigitsCounter(uint32_t color)
+static void compileDigitsCounter(void)
 {
 uint32_t	i,j,xcount;
 uint32_t 	h,t,u;  // hundreds,tens,units
@@ -46,31 +46,31 @@ uint32_t 	h,t,u;  // hundreds,tens,units
 	{
 		for(i=0;i<DIGIT_WIDTH;i++,xcount++)
 		{
-			if ( h == 0 )
+			if (( SystemVar.suppress_trailing_zero == 1) && ( h == 0 ))
 				DigitsCounter[xcount] = DigitOFF[j*DIGIT_WIDTH+i];
 			else
-				DigitsCounter[xcount] = Red[h][j*DIGIT_WIDTH+i];
+				DigitsCounter[xcount] = Digit[h][j*DIGIT_WIDTH+i];
 		}
 		for(i=0;i<DOWNCOUNTER_DIGITSPACE;i++,xcount++)
 			DigitsCounter[xcount] = 0;
 		for(i=0;i<DIGIT_WIDTH;i++,xcount++)
 		{
-			if (( h == 0 ) && ( t == 0 ))
+			if (( SystemVar.suppress_trailing_zero == 1) && ( h == 0 ) && ( t == 0 ))
 				DigitsCounter[xcount] = DigitOFF[j*DIGIT_WIDTH+i];
 			else
-				DigitsCounter[xcount] = Red[t][j*DIGIT_WIDTH+i];
+				DigitsCounter[xcount] = Digit[t][j*DIGIT_WIDTH+i];
 		}
 		for(i=0;i<DOWNCOUNTER_DIGITSPACE;i++,xcount++)
 			DigitsCounter[xcount] = 0;
 		for(i=0;i<DIGIT_WIDTH;i++,xcount++)
-			DigitsCounter[xcount] = Red[u][j*DIGIT_WIDTH+i];
+			DigitsCounter[xcount] = Digit[u][j*DIGIT_WIDTH+i];
 	}
 }
 
-void SetCounter(uint32_t value, uint32_t color)
+void SetCounter(uint32_t value)
 {
 	SystemVar.DownCounter = value;
-	compileDigitsCounter(color);
+	compileDigitsCounter();
 	ILI9341_DrawImage(DOWNCOUNTER_100_POSX, DOWNCOUNTER_POSY, DIGIT_WIDTH*3+DOWNCOUNTER_DIGITSPACE*2, DIGIT_HEIGHT-1, DigitsCounter);
 }
 
@@ -78,8 +78,8 @@ void InitCounter(void)
 {
 	SystemVar.suppress_trailing_zero = 1;
 	SystemVar.DownCounter = SystemVar.Session_DownCounter;
-	compileDigitsCounter(ILI9341_RED);
-	SetCounter(SystemVar.DownCounter,ILI9341_RED);
+	compileDigitsCounter();
+	SetCounter(SystemVar.DownCounter);
 	HAL_Delay(10);
 }
 
@@ -110,6 +110,6 @@ void DecrementCounter(void)
 		SystemVar.worm_g = WORM_G_RUNNING;
 		SystemVar.worm_b = WORM_B_RUNNING;
 	}
-	SetCounter(SystemVar.DownCounter,ILI9341_RED);
+	SetCounter(SystemVar.DownCounter);
 }
 

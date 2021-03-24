@@ -10,8 +10,7 @@
 
 
 #define	USB_WAIT_FOR_HEADER		0
-#define	USB_CHECKING_PACKET		1
-#define	USB_RECEIVING_PACKET	2
+#define	USB_RECEIVING_PACKET	1
 
 extern	uint32_t ParseUSBPacket(void);
 extern	uint32_t USB_ImageUploader(void);

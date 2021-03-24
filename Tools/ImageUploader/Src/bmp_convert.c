@@ -7,7 +7,7 @@
 #include "ImageUploader.h"
 
 
-#define MAX_BMP_SIZE    32768
+#define MAX_BMP_SIZE    131072
 #define DATA_OFFSET_OFFSET 0x000A
 #define WIDTH_OFFSET 0x0012
 #define HEIGHT_OFFSET 0x0016
