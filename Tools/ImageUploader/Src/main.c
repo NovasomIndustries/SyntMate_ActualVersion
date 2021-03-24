@@ -15,7 +15,7 @@ extern  unsigned char   ascii_image[];
 int send_images(int serial_port,char   *folder)
 {
 int     size_in_bytes,j,pnum,rxed,ret_val;
-char    rx_string[32],button_name[32];
+char    rx_string[32],image_name[32];
 char    file_in[128];
 
     for(j=0;j<25;j++)
@@ -23,37 +23,37 @@ char    file_in[128];
         sleep(1);
         switch(j)
         {
-        case   10   :   sprintf(button_name,"settings");break;
-        case   11   :   sprintf(button_name,"settings_disabled");break;
-        case   12   :   sprintf(button_name,"home");break;
-        case   13   :   sprintf(button_name,"home_disabled");break;
-        case   14   :   sprintf(button_name,"increase");break;
-        case   15   :   sprintf(button_name,"increase_disabled");break;
-        case   16   :   sprintf(button_name,"decrease");break;
-        case   17   :   sprintf(button_name,"decrease_disabled");break;
-        case   18   :   sprintf(button_name,"plus");break;
-        case   19   :   sprintf(button_name,"minus");break;
-        case   20   :   sprintf(button_name,"play");break;
-        case   21   :   sprintf(button_name,"stop");break;
-        case   22   :   sprintf(button_name,"back");break;
-        case   23   :   sprintf(button_name,"DigitOff");break;
-        case   24   :   sprintf(button_name,"SintMateLogo");break;
-        case   0    :   sprintf(button_name,"digit0");break;
-        case   1    :   sprintf(button_name,"digit1");break;
-        case   2    :   sprintf(button_name,"digit2");break;
-        case   3    :   sprintf(button_name,"digit3");break;
-        case   4    :   sprintf(button_name,"digit4");break;
-        case   5    :   sprintf(button_name,"digit5");break;
-        case   6    :   sprintf(button_name,"digit6");break;
-        case   7    :   sprintf(button_name,"digit7");break;
-        case   8    :   sprintf(button_name,"digit8");break;
-        case   9    :   sprintf(button_name,"digit9");break;
+        case   10   :   sprintf(image_name,"settings");break;
+        case   11   :   sprintf(image_name,"settings_disabled");break;
+        case   12   :   sprintf(image_name,"home");break;
+        case   13   :   sprintf(image_name,"home_disabled");break;
+        case   14   :   sprintf(image_name,"increase");break;
+        case   15   :   sprintf(image_name,"increase_disabled");break;
+        case   16   :   sprintf(image_name,"decrease");break;
+        case   17   :   sprintf(image_name,"decrease_disabled");break;
+        case   18   :   sprintf(image_name,"plus");break;
+        case   19   :   sprintf(image_name,"minus");break;
+        case   20   :   sprintf(image_name,"play");break;
+        case   21   :   sprintf(image_name,"stop");break;
+        case   22   :   sprintf(image_name,"back");break;
+        case   23   :   sprintf(image_name,"DigitOff");break;
+        case   0   :   sprintf(image_name,"SyntMateLogo");break;
+        case   24    :   sprintf(image_name,"digit0");break;
+        case   1    :   sprintf(image_name,"digit1");break;
+        case   2    :   sprintf(image_name,"digit2");break;
+        case   3    :   sprintf(image_name,"digit3");break;
+        case   4    :   sprintf(image_name,"digit4");break;
+        case   5    :   sprintf(image_name,"digit5");break;
+        case   6    :   sprintf(image_name,"digit6");break;
+        case   7    :   sprintf(image_name,"digit7");break;
+        case   8    :   sprintf(image_name,"digit8");break;
+        case   9    :   sprintf(image_name,"digit9");break;
         }
 
-        sprintf(file_in,"%s/%s.bmp",folder,button_name);
+        sprintf(file_in,"%s/%s.bmp",folder,image_name);
         size_in_bytes = read_and_convert(file_in);
         bzero(tx_buf,BUFSIZE);
-        sprintf(tx_buf,"<IMAGE %s SIZE %d>",button_name,size_in_bytes);
+        sprintf(tx_buf,"<IMAGE %s SIZE %d>",image_name,size_in_bytes);
         printf("TX : %s\n", tx_buf);
         if ( serial_tx_rx_command(serial_port,tx_buf,rx_buf) != -1 )
         {
@@ -61,7 +61,7 @@ char    file_in[128];
             pnum = sscanf(rx_buf,"IMAGE %s %d OK",rx_string,&rxed);
             if ( pnum == 2)
             {
-                ret_val = serial_tx_rx(serial_port,(char *)ascii_image,size_in_bytes,rx_buf,button_name);
+                ret_val = serial_tx_rx(serial_port,(char *)ascii_image,size_in_bytes,rx_buf,image_name);
                 printf("RX : %s\n", rx_buf);
                 if ( ret_val == -1 )
                 {
@@ -70,7 +70,7 @@ char    file_in[128];
                 }
                 else
                 {
-                    sprintf(tx_buf,"<STORE %s>",button_name);
+                    sprintf(tx_buf,"<STORE %s>",image_name);
                     printf("TX : %s\n", tx_buf);
                     if ( serial_tx_rx_command(serial_port,tx_buf,rx_buf) != -1 )
                     {
@@ -95,7 +95,7 @@ char    file_in[128];
         }
         else
         {
-            printf("Serial error sending button %s\n", button_name);
+            printf("Serial error sending button %s\n", image_name);
             return -1;
         }
     }

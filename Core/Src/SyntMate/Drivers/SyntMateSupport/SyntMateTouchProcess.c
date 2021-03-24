@@ -121,7 +121,7 @@ static uint32_t calibratetouch_button_check(void)
 
 uint32_t SintMateTouchProcess(void)
 {
-uint32_t	ret_val=0,homep;	// returns 1 only if system changes state from stop to run
+uint32_t	ret_val=0,homep=0;	// returns 1 only if system changes state from stop to run
 uint32_t	callback_id = TOUCH_CALLBACK_NOTOUCH;
 
 	switch(SystemVar.run_state)

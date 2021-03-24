@@ -23,7 +23,6 @@ uint32_t	FlashIs256	= 0;
 uint32_t SetupFlash(void)
 {
 uint32_t	FlashID,ypos=0,i;
-char		message[32];
 
 	ILI9341_WriteString(0, ypos, "SintMate booting ...", Font_7x10, ILI9341_BLUE, ILI9341_BLACK);
 	ypos += BOOT_Y_DELTA;

@@ -67,7 +67,7 @@ uint32_t	analyze_usb_buf(void)
 			return DECREASE_BASE;
 		if ( strcmp ( (char *)SystemVar.usb_image_name , "decrease_disabled") == 0 )
 			return DECREASE_DISABLED_BASE;
-		if ( strcmp ( (char *)SystemVar.usb_image_name , "SintMateLogo") == 0 )
+		if ( strcmp ( (char *)SystemVar.usb_image_name , "SyntMateLogo") == 0 )
 			return LOGO_BASE;
 		if ( strcmp ( (char *)SystemVar.usb_image_name , "DigitOff") == 0 )
 			return DIGITOFF_BASE;
@@ -84,9 +84,166 @@ uint32_t	analyze_usb_buf(void)
 		return 0;
 }
 
+typedef struct _SUploaderPtrs
+{
+	char					usb_image_name[32];
+	uint32_t				array_ptr;
+	uint32_t 				size;
+}SUploaderPtrs;
+
+const SUploaderPtrs UploaderPtrs[] =
+{
+		{
+				.usb_image_name  = "SyntMateLogo",
+				.array_ptr = (uint32_t	)&SyntmateLogo,
+				.size = LOGO_SIZE
+		},
+		{
+				.usb_image_name  = "settings",
+				.array_ptr = (uint32_t	)&Settings,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "settings_disabled",
+				.array_ptr = (uint32_t	)&Settings_disabled,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "home",
+				.array_ptr = (uint32_t	)&Home,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "home_disabled",
+				.array_ptr = (uint32_t	)&Home_disabled,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "increase",
+				.array_ptr = (uint32_t	)&Increase,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "increase_disabled",
+				.array_ptr = (uint32_t	)&Increase_disabled,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "decrease",
+				.array_ptr = (uint32_t	)&Decrease,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "decrease_disabled",
+				.array_ptr = (uint32_t	)&Decrease_disabled,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "plus",
+				.array_ptr = (uint32_t	)&Plus,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "minus",
+				.array_ptr = (uint32_t	)&Minus,
+				.size = ICONS_SIZE
+		},
+		{
+				.usb_image_name  = "play",
+				.array_ptr = (uint32_t	)&play,
+				.size = BUTTONS_SIZE
+		},
+		{
+				.usb_image_name  = "back",
+				.array_ptr = (uint32_t	)&Back,
+				.size = BACK_SIZE
+		},
+		{
+				.usb_image_name  = "stop",
+				.array_ptr = (uint32_t	)&stop,
+				.size = BUTTONS_SIZE
+		},
+		{
+				.usb_image_name  = "DigitOff",
+				.array_ptr = (uint32_t	)&DigitOFF,
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit0",
+				.array_ptr = (uint32_t	)&Digit[0],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit1",
+				.array_ptr = (uint32_t	)&Digit[1],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit2",
+				.array_ptr = (uint32_t	)&Digit[2],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit3",
+				.array_ptr = (uint32_t	)&Digit[3],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit4",
+				.array_ptr = (uint32_t	)&Digit[4],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit5",
+				.array_ptr = (uint32_t	)&Digit[5],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit6",
+				.array_ptr = (uint32_t	)&Digit[6],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit7",
+				.array_ptr = (uint32_t	)&Digit[7],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit8",
+				.array_ptr = (uint32_t	)&Digit[8],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "digit9",
+				.array_ptr = (uint32_t	)&Digit[9],
+				.size = DIGIT_SIZE
+		},
+		{
+				.usb_image_name  = "endflag",
+				.array_ptr = 0,
+				.size = 0
+		},
+};
+
+static uint32_t lookup(char *name, uint32_t *array_ptr)
+{
+uint32_t	i=0;
+	while( UploaderPtrs[i].size != 0 )
+	{
+		if ( strcmp(name,UploaderPtrs[i].usb_image_name) == 0 )
+		{
+			*array_ptr = (uint32_t )UploaderPtrs[i].array_ptr;
+			return UploaderPtrs[i].size;
+		}
+		i++;
+	}
+	return 0;
+}
+
 void ReceiveUSBPacket(void)
 {
-uint32_t	i;
+uint32_t	i,j,size,array_ptr32;
+uint16_t	*array_ptr;
 
 	for(i=0;i<SystemVar.usb_rxed_byte_count;i+=2)
 	{
@@ -96,168 +253,34 @@ uint32_t	i;
 		if ( usb_rx_index > usb_bytes_to_receive-1)
 		{
 			usb_rx_index = 0;
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "settings") == 0 )
+			if (( size = lookup(SystemVar.usb_image_name,&array_ptr32)) != 0 )
 			{
-				bzero(Settings,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
+				array_ptr = (uint16_t	*)array_ptr32;
+				for(j=0;j<usb_bytes_to_receive;j+=2)
 				{
-					Settings[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
+					*array_ptr = (image_buffer[j]<<8) | image_buffer[j+1];
 					usb_rx_index++;
+					array_ptr ++;
 				}
+				SystemVar.usb_pkt_found = USB_WAIT_FOR_HEADER;
+				SystemVar.usb_rx_index  = 0;
+				bzero(usb_uploader_tx_buf,64);
+				sprintf((char *)usb_uploader_tx_buf,"RECEIVED %d %d",(int )SystemVar.usb_image_number,(int )usb_bytes_to_receive);
+				CDC_Transmit_FS(usb_uploader_tx_buf,strlen((char *)usb_uploader_tx_buf));
+				return;
 			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "settings_disabled") == 0 )
+			else
 			{
-				bzero(Settings_disabled,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Settings_disabled[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
+				SystemVar.usb_pkt_found = USB_WAIT_FOR_HEADER;
+				SystemVar.usb_rx_index  = 0;
+				bzero(usb_uploader_tx_buf,64);
+				sprintf((char *)usb_uploader_tx_buf,"UNKNOWN_IMAGE %d %d",(int )SystemVar.usb_image_number,(int )usb_bytes_to_receive);
+				CDC_Transmit_FS(usb_uploader_tx_buf,strlen((char *)usb_uploader_tx_buf));
+				return;
 			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "home") == 0 )
-			{
-				bzero(Home,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Home[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-				SystemVar.usb_image_number = 0;
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "home_disabled") == 0 )
-			{
-				bzero(Home_disabled,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Home_disabled[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "increase") == 0 )
-			{
-				bzero(Increase,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Increase[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "increase_disabled") == 0 )
-			{
-				bzero(Increase_disabled,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Increase_disabled[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-				SystemVar.usb_image_number = 0;
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "decrease") == 0 )
-			{
-				bzero(Decrease,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Decrease[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "decrease_disabled") == 0 )
-			{
-				bzero(Decrease_disabled,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Decrease_disabled[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "play") == 0 )
-			{
-				bzero(play,BUTTONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					play[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "stop") == 0 )
-			{
-				bzero(stop,BUTTONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					stop[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "SintMateLogo") == 0 )
-			{
-				bzero(SyntmateLogo,LOGO_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					SyntmateLogo[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "DigitOff") == 0 )
-			{
-				bzero(DigitOFF,DIGITOFF_BASE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					DigitOFF[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "plus") == 0 )
-			{
-				bzero(Plus,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Plus[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "minus") == 0 )
-			{
-				bzero(Minus,ICONS_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Minus[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			if ( strcmp ( (char *)SystemVar.usb_image_name , "back") == 0 )
-			{
-				bzero(Back,BACK_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Back[usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			/************************************************************************************/
-			if ( strncmp ( (char *)SystemVar.usb_image_name , "digit",5) == 0 )
-			{
-				SystemVar.usb_image_number = SystemVar.usb_image_name[5] & 0x0f;
-				bzero(Digit[SystemVar.usb_image_number],DIGIT_SIZE);
-				for(i=0;i<usb_bytes_to_receive;i+=2)
-				{
-					Digit[SystemVar.usb_image_number][usb_rx_index] = (image_buffer[i]<<8) | image_buffer[i+1];
-					usb_rx_index++;
-				}
-			}
-			/************************************************************************************/
-			SystemVar.usb_pkt_found = USB_WAIT_FOR_HEADER;
-			SystemVar.usb_rx_index  = 0;
-			bzero(usb_uploader_tx_buf,64);
-			sprintf((char *)usb_uploader_tx_buf,"RECEIVED %d %d",(int )SystemVar.usb_image_number,(int )usb_bytes_to_receive);
-			CDC_Transmit_FS(usb_uploader_tx_buf,strlen((char *)usb_uploader_tx_buf));
-
-			return;
 		}
 	}
 }
-
 
 static void flash_erase_base(uint32_t base,uint32_t num)
 {
@@ -273,116 +296,116 @@ uint32_t	base=0,error=0;
 	base = analyze_usb_buf();
 	if ( base == 0 )
 	{
-		usbusb_error();
-		return;
+		error = 1;
 	}
-
-	switch ( base )
+	else
 	{
-	case	DIGIT0_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[0] ,flash_SectorToAddress(DIGIT0_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT1_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[1] ,flash_SectorToAddress(DIGIT1_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT2_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[2] ,flash_SectorToAddress(DIGIT2_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT3_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[3] ,flash_SectorToAddress(DIGIT3_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT4_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[4] ,flash_SectorToAddress(DIGIT4_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT5_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[5] ,flash_SectorToAddress(DIGIT5_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT6_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[6] ,flash_SectorToAddress(DIGIT6_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT7_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[7] ,flash_SectorToAddress(DIGIT7_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT8_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[8] ,flash_SectorToAddress(DIGIT8_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGIT9_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Digit[9] ,flash_SectorToAddress(DIGIT9_BASE),DIGIT_SIZE*2);
-		break;
-	case	DIGITOFF_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)DigitOFF ,flash_SectorToAddress(DIGITOFF_BASE),DIGIT_SIZE*2);
-		break;
-	case	LOGO_BASE	:
-		flash_erase_base(base,8);
-		flash_WriteBytes((uint8_t *)SyntmateLogo ,flash_SectorToAddress(LOGO_BASE),LOGO_SIZE*2);
-		break;
-	case	INCREASE_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Increase 			,flash_SectorToAddress(INCREASE_BASE),ICONS_SIZE*2);
-		break;
-	case	INCREASE_DISABLED_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Increase_disabled	,flash_SectorToAddress(INCREASE_DISABLED_BASE),ICONS_SIZE*2);
-		break;
-	case	DECREASE_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Decrease 			,flash_SectorToAddress(DECREASE_BASE),ICONS_SIZE*2);
-		break;
-	case	DECREASE_DISABLED_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Decrease_disabled	,flash_SectorToAddress(DECREASE_DISABLED_BASE),ICONS_SIZE*2);
-		break;
-	case	SETTINGS_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Settings 			,flash_SectorToAddress(SETTINGS_BASE),ICONS_SIZE*2);
-		break;
-	case	SETTINGS_DISABLED_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Settings_disabled	,flash_SectorToAddress(SETTINGS_DISABLED_BASE),ICONS_SIZE*2);
-		break;
-	case	HOME_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Home	 			,flash_SectorToAddress(HOME_BASE),ICONS_SIZE*2);
-		break;
-	case	HOME_DISABLED_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Home_disabled		,flash_SectorToAddress(HOME_DISABLED_BASE),ICONS_SIZE*2);
-		break;
-	case	PLUS_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Plus	 			,flash_SectorToAddress(PLUS_BASE),ICONS_SIZE*2);
-		break;
-	case	MINUS_BASE	:
-		flash_erase_base(base,2);
-		flash_WriteBytes((uint8_t *)Minus 				,flash_SectorToAddress(MINUS_BASE),ICONS_SIZE*2);
-		break;
-	case	BACK2NORMAL_BASE	:
-		flash_erase_base(base,16);
-		flash_WriteBytes((uint8_t *)Back 				,flash_SectorToAddress(BACK2NORMAL_BASE),BACK_SIZE*2);
-		break;
-	case	PLAY_BASE	:
-		flash_erase_base(base,16);
-		flash_WriteBytes((uint8_t *)play ,flash_SectorToAddress(PLAY_BASE),BUTTONS_SIZE*2);
-		break;
-	case	STOP_BASE	:
-		flash_erase_base(base,16);
-		flash_WriteBytes((uint8_t *)stop ,flash_SectorToAddress(STOP_BASE),BUTTONS_SIZE*2);
-		break;
-	default	:
-		error=1;
-		usbusb_error();
-		break;
+		switch ( base )
+		{
+		case	DIGIT0_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[0] ,flash_SectorToAddress(DIGIT0_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT1_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[1] ,flash_SectorToAddress(DIGIT1_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT2_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[2] ,flash_SectorToAddress(DIGIT2_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT3_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[3] ,flash_SectorToAddress(DIGIT3_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT4_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[4] ,flash_SectorToAddress(DIGIT4_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT5_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[5] ,flash_SectorToAddress(DIGIT5_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT6_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[6] ,flash_SectorToAddress(DIGIT6_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT7_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[7] ,flash_SectorToAddress(DIGIT7_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT8_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[8] ,flash_SectorToAddress(DIGIT8_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGIT9_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Digit[9] ,flash_SectorToAddress(DIGIT9_BASE),DIGIT_SIZE*2);
+			break;
+		case	DIGITOFF_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)DigitOFF ,flash_SectorToAddress(DIGITOFF_BASE),DIGIT_SIZE*2);
+			break;
+		case	LOGO_BASE	:
+			flash_erase_base(base,8);
+			flash_WriteBytes((uint8_t *)SyntmateLogo ,flash_SectorToAddress(LOGO_BASE),LOGO_SIZE*2);
+			break;
+		case	INCREASE_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Increase 			,flash_SectorToAddress(INCREASE_BASE),ICONS_SIZE*2);
+			break;
+		case	INCREASE_DISABLED_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Increase_disabled	,flash_SectorToAddress(INCREASE_DISABLED_BASE),ICONS_SIZE*2);
+			break;
+		case	DECREASE_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Decrease 			,flash_SectorToAddress(DECREASE_BASE),ICONS_SIZE*2);
+			break;
+		case	DECREASE_DISABLED_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Decrease_disabled	,flash_SectorToAddress(DECREASE_DISABLED_BASE),ICONS_SIZE*2);
+			break;
+		case	SETTINGS_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Settings 			,flash_SectorToAddress(SETTINGS_BASE),ICONS_SIZE*2);
+			break;
+		case	SETTINGS_DISABLED_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Settings_disabled	,flash_SectorToAddress(SETTINGS_DISABLED_BASE),ICONS_SIZE*2);
+			break;
+		case	HOME_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Home	 			,flash_SectorToAddress(HOME_BASE),ICONS_SIZE*2);
+			break;
+		case	HOME_DISABLED_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Home_disabled		,flash_SectorToAddress(HOME_DISABLED_BASE),ICONS_SIZE*2);
+			break;
+		case	PLUS_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Plus	 			,flash_SectorToAddress(PLUS_BASE),ICONS_SIZE*2);
+			break;
+		case	MINUS_BASE	:
+			flash_erase_base(base,2);
+			flash_WriteBytes((uint8_t *)Minus 				,flash_SectorToAddress(MINUS_BASE),ICONS_SIZE*2);
+			break;
+		case	BACK2NORMAL_BASE	:
+			flash_erase_base(base,16);
+			flash_WriteBytes((uint8_t *)Back 				,flash_SectorToAddress(BACK2NORMAL_BASE),BACK_SIZE*2);
+			break;
+		case	PLAY_BASE	:
+			flash_erase_base(base,16);
+			flash_WriteBytes((uint8_t *)play ,flash_SectorToAddress(PLAY_BASE),BUTTONS_SIZE*2);
+			break;
+		case	STOP_BASE	:
+			flash_erase_base(base,16);
+			flash_WriteBytes((uint8_t *)stop ,flash_SectorToAddress(STOP_BASE),BUTTONS_SIZE*2);
+			break;
+		default	:
+			error=1;
+			break;
+		}
 	}
 
 	bzero(usb_uploader_tx_buf,64);
