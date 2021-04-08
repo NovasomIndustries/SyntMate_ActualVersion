@@ -79,7 +79,7 @@ typedef struct _SystemParametersTypeDef
 #define		RUN_STATE_RUNNING	1
 #define		RUN_STATE_SETTINGS	2
 
-#define		TOUCH_DISABLE_WINDOW	5	// 500 mSec delay after touch released the touch is considered not active
+#define		TOUCH_DISABLE_WINDOW	2	// 500 mSec delay after touch released the touch is considered not active
 
 #define	USB_BUFLEN			2048
 

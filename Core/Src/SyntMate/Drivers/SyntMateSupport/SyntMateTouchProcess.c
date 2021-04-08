@@ -144,7 +144,7 @@ uint32_t	callback_id = TOUCH_CALLBACK_NOTOUCH;
 		}
 		if (increase_button_check() == 1)
 		{
-			if ( SystemVar.DownCounter < SystemParameters.max_running_time-10 )
+			if ( SystemVar.DownCounter < SystemParameters.max_running_time )
 			{
 				SystemVar.DownCounter /=10;
 				SystemVar.DownCounter ++;
